@@ -1,0 +1,20 @@
+# PyTorch: GPU için CUDA'lı sürümü https://pytorch.org adresindeki komutla kurun.
+# (Ör. CUDA 12.8: pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu128)
+torch>=2.1
+torchaudio>=2.1
+
+numpy>=1.24
+scipy>=1.10
+soundfile>=0.12        # wav okuma/yazma (torchaudio backend'inden bağımsız)
+pandas>=2.0            # manifest.csv
+PyYAML>=6.0            # configs/*.yaml
+matplotlib>=3.7        # spektrogram görselleri
+tqdm>=4.65
+
+# Metrikler
+pystoi>=0.4
+# PESQ opsiyonel: Windows'ta derleme sorunu çıkarabilir, Colab'da kurun.
+#   pip install pesq
+
+# Test
+pytest>=7.4

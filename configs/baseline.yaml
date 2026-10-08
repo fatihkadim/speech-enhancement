@@ -1,0 +1,27 @@
+seed: 42
+data:
+  manifest: data/processed/manifest.csv
+  sr: 16000
+  segment_seconds: 3.0
+  snr_list: [-5, 0, 5, 10, 15]
+  unseen_noise_classes: []        # make_dataset sırasında doldurulur / belirlenir
+stft:
+  n_fft: 512
+  hop: 128
+model:
+  name: unet
+  base_ch: 16
+  depth: 4
+  skip: true
+  out_mode: mask                  # mask | direct
+loss:
+  name: l1                        # l1 | mse | si_snr
+train:
+  batch_size: 8
+  epochs: 50
+  lr: 1.0e-3
+  amp: true
+  grad_clip: 5.0
+  num_workers: 0
+  early_stop_patience: 8
+output_dir: experiments/baseline

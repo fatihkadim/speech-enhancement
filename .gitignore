@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Ortamlar
+.venv/
+venv/
+env/
+
+# Veri ve çıktılar (git'e eklenmez)
+data/*
+!data/raw/
+!data/processed/
+data/raw/*
+data/processed/*
+!data/**/.gitkeep
+experiments/*
+!experiments/.gitkeep
+
+# Model ve büyük ses dosyaları
+*.pt
+*.pth
+*.ckpt
+*.flac
+*.zip
+*.tar.gz
+
+# Claude Code (yerel ajan belleği)
+CLAUDE.md
+.claude/
+
+# Editör / işletim sistemi
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

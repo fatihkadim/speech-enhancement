@@ -1,0 +1,43 @@
+[project]
+name = "sestemiz"
+version = "0.1.0"
+description = "Derin öğrenme tabanlı konuşma gürültü giderme (U-Net)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.1",
+    "torchaudio>=2.1",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "soundfile>=0.12",
+    "pandas>=2.0",
+    "pyyaml>=6.0",
+    "matplotlib>=3.7",
+    "tqdm>=4.65",
+    "pystoi>=0.4",
+]
+
+[project.optional-dependencies]
+# Windows'ta derleme sorunu çıkarabilir; Colab'da kurun: uv sync --extra pesq
+pesq = ["pesq>=0.0.4"]
+
+[dependency-groups]
+dev = ["pytest>=7.4"]
+
+# torch/torchaudio Windows ve Linux'ta CUDA 12.8 sürümünden gelir.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu128", marker = "sys_platform == 'win32' or sys_platform == 'linux'" }]
+torchaudio = [{ index = "pytorch-cu128", marker = "sys_platform == 'win32' or sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
