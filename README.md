@@ -70,7 +70,7 @@ samples/        Örnek ses ve spektrogram görselleri
 ## Yol Haritası
 
 - [x] **M0** — Ortam, klasör iskeleti, test altyapısı
-- [ ] **M1** — Ses yardımcıları (STFT/iSTFT, SNR karışımı)
+- [x] **M1** — Ses yardımcıları (STFT/iSTFT, SNR karışımı)
 - [ ] **M2** — Veri hattı ve sızıntı kontrolü
 - [ ] **M3** — U-Net ve kayıp fonksiyonları
 - [ ] **M4** — Baseline eğitim ve değerlendirme
