@@ -34,4 +34,9 @@ train:
   grad_clip: 5.0
   num_workers: 0
   early_stop_patience: 8
+  lr_factor: 0.5                  # doğrulama kaybı iyileşmezse lr bu katsayıyla çarpılır
+  lr_patience: 3                  # ... bu kadar epoch sonra
+eval:
+  segment_seconds: null           # null = test kayıtlarının tamamı değerlendirilir
+device: auto                      # auto | cuda | cpu
 output_dir: experiments/baseline

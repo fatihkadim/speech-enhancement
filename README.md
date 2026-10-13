@@ -32,23 +32,28 @@ Bölmeler konuşmacıya göre yapılır; bazı gürültü sınıfları yalnızca
 Proje [uv](https://docs.astral.sh/uv/) ile yönetilir (Python 3.10+). Windows ve Linux'ta torch, CUDA 12.8 sürümüyle kurulur.
 
 ```bash
-uv sync
+uv sync --extra pesq
 uv run pytest
 ```
 
-Colab gibi pip kullanılan ortamlarda: `pip install -r requirements.txt`
+PESQ metriği opsiyoneldir ve kurulum sırasında derlenir (C/C++ derleyicisi gerekir). Derlenemezse `uv sync`
+ile PESQ'siz kurulabilir; değerlendirme bu durumda PESQ'i atlayıp uyarı verir. Not: `--extra pesq` olmadan
+çalıştırılan `uv sync` kurulu PESQ'i kaldırır.
 
-PESQ metriği opsiyoneldir (Windows'ta derleme sorunu çıkarabilir). Colab'da `uv sync --extra pesq` veya
-`pip install pesq` ile kurulabilir; kurulu değilse değerlendirme PESQ'i atlayıp uyarı verir.
+Colab gibi pip kullanılan ortamlarda: `pip install -r requirements.txt pesq`
 
 ## Kullanım
 
-> Aşağıdaki komutlar ilgili aşamalar tamamlandıkça çalışır hale gelecektir.
+Veri setleri `data/raw/` altına açılmalıdır:
+[LibriSpeech dev-clean](https://www.openslr.org/resources/12/dev-clean.tar.gz) → `data/raw/LibriSpeech/`,
+[ESC-50](https://github.com/karolpiczak/ESC-50/archive/refs/heads/master.zip) → `data/raw/ESC-50-master/`.
 
 ```bash
-uv run python -m src.data.make_dataset --config configs/baseline.yaml     # veri üretimi + manifest
+uv run python -m src.data.make_dataset --config configs/baseline.yaml     # veri üretimi + manifest + örnekler
+uv run python -m src.evaluate --config configs/baseline.yaml --split test # E0: işlenmemiş girdinin metrikleri
 uv run python -m src.train --config configs/baseline.yaml                 # eğitim
 uv run python -m src.evaluate --checkpoint experiments/baseline/best.pt --split test
+uv run python -m src.evaluate --checkpoint experiments/baseline/best.pt --split test_unseen_noise
 uv run python -m src.infer --checkpoint experiments/baseline/best.pt --input kayit.wav --output temiz.wav
 ```
 
@@ -73,18 +78,20 @@ samples/        Örnek ses ve spektrogram görselleri
 - [x] **M1** — Ses yardımcıları (STFT/iSTFT, SNR karışımı)
 - [x] **M2** — Veri hattı ve sızıntı kontrolü
 - [x] **M3** — U-Net ve kayıp fonksiyonları
-- [ ] **M4** — Baseline eğitim ve değerlendirme
+- [x] **M4** — Baseline eğitim ve değerlendirme
 - [ ] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
 - [ ] **M6** — Demo notebook ve sonuç tabloları
 
 ## Sonuçlar
 
-Deneyler tamamlandıkça `summary.json` çıktılarından doldurulacaktır.
+Değerler `summary.json` çıktılarından alınmıştır (ortalama ± standart sapma, `test` bölmesi, kayıtların tamamı).
+
+> **Ön sonuç:** küçük alt küme (300 eğitim / 50 test örneği), tek tohum. Deneyler (M5) tamamlandıkça güncellenecektir.
 
 | Model / Kayıp | SI-SNR (dB) | PESQ | STOI |
 |---------------|-------------|------|------|
-| Gürültülü girdi | – | – | – |
-| U-Net + L1 | – | – | – |
+| Gürültülü girdi (E0) | 5,07 ± 6,30 | 1,35 ± 0,34 | 0,827 ± 0,126 |
+| U-Net + L1 (baseline) | 8,25 ± 5,92 | 1,45 ± 0,37 | 0,820 ± 0,129 |
 | U-Net + MSE | – | – | – |
 | U-Net + SI-SNR | – | – | – |
 

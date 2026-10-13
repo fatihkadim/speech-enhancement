@@ -29,6 +29,26 @@ def plot_spectrogram(ax: plt.Axes, wave: torch.Tensor, sr: int, n_fft: int, hop:
     ax.set(title=title, xlabel="zaman (sn)", ylabel="frekans (kHz)")
 
 
+def save_enhancement_figure(clean: torch.Tensor, noisy: torch.Tensor, enhanced: torch.Tensor, mask: torch.Tensor,
+                            sr: int, n_fft: int, hop: int, path: Path, title: str) -> None:
+    """Temiz / gürültülü / model maskesi / temizlenmiş: dört paneli aynı renk ölçeğiyle kaydeder.
+
+    mask: (F, T_frames), [0, 1]; 1 = korunan, 0 = silinen hücre.
+    """
+    vmax = float(max(spectrogram_db(w, n_fft, hop).max() for w in (clean, noisy, enhanced)))
+    fig, axes = plt.subplots(4, 1, figsize=(9, 10), sharex=True, constrained_layout=True)
+    plot_spectrogram(axes[0], clean, sr, n_fft, hop, "temiz (hedef)", vmax)
+    plot_spectrogram(axes[1], noisy, sr, n_fft, hop, "gürültülü (girdi)", vmax)
+    im = axes[2].imshow(mask.numpy(), origin="lower", aspect="auto", cmap="viridis", vmin=0, vmax=1,
+                        extent=(0, noisy.numel() / sr, 0, sr / 2 / 1000))
+    axes[2].set(title="modelin maskesi (sarı = koru, mor = sil)", ylabel="frekans (kHz)")
+    fig.colorbar(im, ax=axes[2], fraction=0.02)
+    plot_spectrogram(axes[3], enhanced, sr, n_fft, hop, "temizlenmiş (çıktı)", vmax)
+    fig.suptitle(title)
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+
+
 def save_example_figure(clean: torch.Tensor, noisy: torch.Tensor, sr: int, n_fft: int, hop: int,
                         path: Path, title: str) -> None:
     """Temiz ve gürültülü spektrogramları aynı renk ölçeğiyle alt alta kaydeder."""

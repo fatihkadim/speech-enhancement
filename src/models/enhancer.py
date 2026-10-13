@@ -3,6 +3,8 @@
 noisy → STFT → |X| (Nyquist bandı atılır) → log1p → U-Net → tahmini genlik
       → Nyquist bandına 0 eklenir → gürültülü fazla birleştirilir → iSTFT → est_wave
 """
+from pathlib import Path
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -35,6 +37,14 @@ class SpectralEnhancer(nn.Module):
         est_spec = F.pad(est_mag, (0, 0, 0, 1)) * phase                # Nyquist bandına 0 eklendi
         est_wave = istft(est_spec, self.n_fft, self.hop, length=noisy.shape[-1])
         return {"est_mag": est_mag, "est_wave": est_wave}
+
+
+def load_model(checkpoint: Path, device: torch.device | str = "cpu") -> tuple[SpectralEnhancer, dict]:
+    """train.py'nin kaydettiği checkpoint'ten modeli (eval modunda) ve config'i yükler."""
+    state = torch.load(checkpoint, map_location=device)
+    model = build_model(state["config"]).to(device)
+    model.load_state_dict(state["model"])
+    return model.eval(), state["config"]
 
 
 def build_model(cfg: dict) -> SpectralEnhancer:
