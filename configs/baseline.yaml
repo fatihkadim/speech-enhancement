@@ -1,10 +1,20 @@
 seed: 42
 data:
+  clean_dir: data/raw/LibriSpeech/dev-clean
+  noise_dir: data/raw/ESC-50-master
+  processed_dir: data/processed
   manifest: data/processed/manifest.csv
   sr: 16000
   segment_seconds: 3.0
   snr_list: [-5, 0, 5, 10, 15]
-  unseen_noise_classes: []        # make_dataset sırasında doldurulur / belirlenir
+  split_ratios: {train: 0.75, val: 0.125, test: 0.125}   # konuşmacı bazında
+  noise_folds: {train: [1, 2, 3], val: [4], test: [5]}  # ESC-50 fold'ları; klip düzeyinde ayrım
+  # Yalnızca test_unseen_noise'da kullanılır (ESC-50'nin 5 ana kategorisinden birer sınıf)
+  unseen_noise_classes: [rooster, thunderstorm, footsteps, vacuum_cleaner, siren]
+  max_utterances_per_speaker: 10  # küçük alt küme; null = tümü
+  noise_silence_db: -50           # gürültü kliplerinin baş/son sessizliği bu eşikte kırpılır
+  samples_dir: samples
+  num_samples: 5
 stft:
   n_fft: 512
   hop: 128
