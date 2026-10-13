@@ -72,7 +72,7 @@ samples/        Örnek ses ve spektrogram görselleri
 - [x] **M0** — Ortam, klasör iskeleti, test altyapısı
 - [x] **M1** — Ses yardımcıları (STFT/iSTFT, SNR karışımı)
 - [x] **M2** — Veri hattı ve sızıntı kontrolü
-- [ ] **M3** — U-Net ve kayıp fonksiyonları
+- [x] **M3** — U-Net ve kayıp fonksiyonları
 - [ ] **M4** — Baseline eğitim ve değerlendirme
 - [ ] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
 - [ ] **M6** — Demo notebook ve sonuç tabloları
