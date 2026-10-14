@@ -11,7 +11,7 @@ data:
   noise_folds: {train: [1, 2, 3], val: [4], test: [5]}  # ESC-50 fold'ları; klip düzeyinde ayrım
   # Yalnızca test_unseen_noise'da kullanılır (ESC-50'nin 5 ana kategorisinden birer sınıf)
   unseen_noise_classes: [rooster, thunderstorm, footsteps, vacuum_cleaner, siren]
-  max_utterances_per_speaker: 10  # küçük alt küme; null = tümü
+  max_utterances_per_speaker: null  # null = tümü (pilot deney 10 ile yapıldı: experiments/pilot_450)
   noise_silence_db: -50           # gürültü kliplerinin baş/son sessizliği bu eşikte kırpılır
   samples_dir: samples
   num_samples: 5
