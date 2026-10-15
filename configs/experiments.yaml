@@ -1,0 +1,12 @@
+# M5 deney matrisi. Her deney configs/baseline.yaml'dan yalnızca bir ayarı değiştirir.
+# Çalıştırma: uv run python -m src.run_experiments --base configs/baseline.yaml --matrix configs/experiments.yaml
+output_root: experiments
+seeds: [42, 43, 44]
+experiments:
+  baseline: {}                          # E1-L1 / E2-skip var / E3-derinlik 4 / E4-maske
+  e1_mse: {loss: {name: mse}}           # E1: kayıp fonksiyonu
+  e1_si_snr: {loss: {name: si_snr}}
+  e2_no_skip: {model: {skip: false}}    # E2: skip connection
+  e3_depth3: {model: {depth: 3}}        # E3: derinlik
+  e3_depth5: {model: {depth: 5}}
+  e4_direct: {model: {out_mode: direct}}  # E4: çıkış türü
