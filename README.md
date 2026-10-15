@@ -52,9 +52,13 @@ Veri setleri `data/raw/` altına açılmalıdır:
 uv run python -m src.data.make_dataset --config configs/baseline.yaml     # veri üretimi + manifest + örnekler
 uv run python -m src.evaluate --config configs/baseline.yaml --split test # E0: işlenmemiş girdinin metrikleri
 uv run python -m src.train --config configs/baseline.yaml                 # eğitim
-uv run python -m src.evaluate --checkpoint experiments/baseline/best.pt --split test
-uv run python -m src.evaluate --checkpoint experiments/baseline/best.pt --split test_unseen_noise
-uv run python -m src.infer --checkpoint experiments/baseline/best.pt --input kayit.wav --output temiz.wav
+uv run python -m src.evaluate --checkpoint experiments/baseline/seed42/best.pt --split test
+uv run python -m src.evaluate --checkpoint experiments/baseline/seed42/best.pt --split test_unseen_noise
+uv run python -m src.infer --checkpoint experiments/baseline/seed42/best.pt --input kayit.wav --output temiz.wav
+
+# M5 deney matrisi (21 eğitim, ~9 saat) ve sonuç tabloları
+uv run python -m src.run_experiments --base configs/baseline.yaml --matrix configs/experiments.yaml
+uv run python -m src.collect_results --matrix configs/experiments.yaml --markdown docs/results.md
 ```
 
 Tüm hiperparametreler `configs/` altındaki YAML dosyalarından yönetilir.
@@ -79,21 +83,30 @@ samples/        Örnek ses ve spektrogram görselleri
 - [x] **M2** — Veri hattı ve sızıntı kontrolü
 - [x] **M3** — U-Net ve kayıp fonksiyonları
 - [x] **M4** — Baseline eğitim ve değerlendirme
-- [ ] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
+- [~] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
 - [ ] **M6** — Demo notebook ve sonuç tabloları
 
 ## Sonuçlar
 
-Değerler `summary.json` çıktılarından alınmıştır (ortalama ± standart sapma, `test` bölmesi, kayıtların tamamı).
+LibriSpeech dev-clean (2072 eğitim / 340 test kaydı) + ESC-50, `test` bölmesi, kayıtların tamamı.
+Her deney 3 tohumla eğitildi; değerler tohumlar arası ortalama ± std. Δ: aynı test kaydı ve tohum eşleştirilerek
+baseline'a fark, köşeli parantez içinde %95 güven aralığı. Tüm tablolar (görülmemiş gürültü, SNR'a göre):
+[`docs/results.md`](docs/results.md).
 
-> **Ön sonuç:** küçük alt küme (300 eğitim / 50 test örneği), tek tohum. Deneyler (M5) tamamlandıkça güncellenecektir.
+| Deney | Değişen ayar | SI-SNR (dB) | PESQ | STOI | Δ SI-SNR | Δ PESQ |
+|-------|--------------|-------------|------|------|----------|--------|
+| Gürültülü girdi (E0) | – | 4,50 | 1,367 | 0,833 | | |
+| **Baseline** | U-Net d=4, skip, maske, L1 | 12,78 ± 0,27 | 1,970 ± 0,042 | 0,891 ± 0,004 | | |
+| E1 | kayıp: MSE | 12,55 ± 0,59 | 1,945 ± 0,033 | 0,895 ± 0,005 | −0,23 [−0,38, −0,08] | −0,025 [−0,046, −0,004] |
+| E1 | kayıp: SI-SNR | **13,49 ± 0,20** | 1,942 ± 0,007 | 0,892 ± 0,002 | **+0,71** [+0,50, +0,91] | −0,028 [−0,049, −0,010] |
+| E2 | skip yok | 11,60 ± 0,26 | 1,802 ± 0,031 | 0,874 ± 0,004 | −1,18 [−1,34, −1,01] | −0,168 [−0,185, −0,150] |
+| E3 | derinlik 3 | 12,50 ± 0,00 | 1,917 ± 0,015 | 0,886 ± 0,001 | −0,28 [−0,44, −0,12] | −0,054 [−0,068, −0,040] |
+| E3 | derinlik 5 | 13,14 ± 0,14 | **2,043 ± 0,035** | **0,897 ± 0,002** | +0,36 [+0,24, +0,48] | **+0,072** [+0,059, +0,085] |
+| E4 | çıkış: doğrudan genlik | 12,50 ± 0,26 | 1,947 ± 0,037 | 0,891 ± 0,003 | −0,28 [−0,39, −0,17] | −0,024 [−0,033, −0,015] |
 
-| Model / Kayıp | SI-SNR (dB) | PESQ | STOI |
-|---------------|-------------|------|------|
-| Gürültülü girdi (E0) | 5,07 ± 6,30 | 1,35 ± 0,34 | 0,827 ± 0,126 |
-| U-Net + L1 (baseline) | 8,25 ± 5,92 | 1,45 ± 0,37 | 0,820 ± 0,129 |
-| U-Net + MSE | – | – | – |
-| U-Net + SI-SNR | – | – | – |
+Notlar: 21 eğitimin 17'si 50 epoch sınırına ulaştı (doğrulama kaybı hâlâ hafifçe iyileşiyordu); tüm deneyler
+aynı sınırla eğitildiği için karşılaştırma adildir. Faz gürültülü sinyalden alınır (bkz. şartname). İlk pilot deney
+(450 örnek, tek tohum) `experiments/pilot_450/` altında saklanmıştır.
 
 ## Kaynaklar
 
