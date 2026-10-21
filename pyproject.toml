@@ -22,7 +22,11 @@ dependencies = [
 pesq = ["pesq>=0.0.4"]
 
 [dependency-groups]
-dev = ["pytest>=7.4"]
+dev = [
+    "ipykernel>=7.3.0",
+    "nbconvert>=7.17.2",
+    "pytest>=7.4",
+]
 
 # torch/torchaudio Windows ve Linux'ta CUDA 12.8 sürümünden gelir.
 [tool.uv.sources]

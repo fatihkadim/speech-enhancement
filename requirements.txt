@@ -18,3 +18,7 @@ pystoi>=0.4
 
 # Test
 pytest>=7.4
+
+# Demo notebook (Colab'da zaten kurulu)
+ipykernel>=6.0
+nbconvert>=7.0

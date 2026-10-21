@@ -63,6 +63,17 @@ uv run python -m src.collect_results --matrix configs/experiments.yaml --markdow
 
 Tüm hiperparametreler `configs/` altındaki YAML dosyalarından yönetilir.
 
+### Demo
+
+[`notebooks/demo.ipynb`](notebooks/demo.ipynb): en iyi iki modelle (`e3_depth5`, `e1_si_snr`) örnekleri temizler,
+gürültülü/temizlenmiş sesleri dinletir, önce/sonra spektrogramlarını ve sonuç tablosunu gösterir;
+`data/raw/gercek_kayit/` altındaki kendi kayıtlarınızı da temizler. Model yerelde yoksa GitHub Release'ten
+(`modeller-v1`) `models/` klasörüne indirilir.
+
+```bash
+uv run jupyter nbconvert --to notebook --execute notebooks/demo.ipynb --output demo_run.ipynb
+```
+
 ## Klasör Yapısı
 
 ```
@@ -84,7 +95,7 @@ samples/        Örnek ses ve spektrogram görselleri
 - [x] **M3** — U-Net ve kayıp fonksiyonları
 - [x] **M4** — Baseline eğitim ve değerlendirme
 - [~] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
-- [ ] **M6** — Demo notebook ve sonuç tabloları
+- [x] **M6** — Demo notebook ve sonuç tabloları
 
 ## Sonuçlar
 
