@@ -63,6 +63,23 @@ uv run python -m src.collect_results --matrix configs/experiments.yaml --markdow
 
 Tüm hiperparametreler `configs/` altındaki YAML dosyalarından yönetilir.
 
+### Web arayüzü
+
+![SesTemiz web arayüzü: -5 dB tavuk sesi örneğinde gürültülü ve temizlenmiş spektrogram karşılaştırması](docs/web_arayuz.png)
+
+React arayüzü (`web/`) bir ses dosyası yükleyip, mikrofonla kaydedip ya da `samples/` örneklerini seçip modeli
+çalıştırır. Gürültülü ve temizlenmiş spektrogramları sürüklenebilir bir sınırla karşılaştırır, iki sürümü kesintisiz
+geçişle dinletir, modelin maskesini ve (örneklerde) SI-SNR / PESQ / STOI değişimini gösterir. Modeller yoksa
+Release'ten `models/` altına indirilir. Bir örneğe doğrudan bağlantı verilebilir: `http://localhost:8000/?ornek=snr-5_hen`. Node.js 20+ gerekir.
+
+```bash
+cd web && npm install && npm run build && cd ..
+uv run python -m src.api                 # http://localhost:8000 (API + derlenmiş arayüz)
+
+# Arayüz üzerinde çalışırken: API'yi yukarıdaki gibi açın, ayrı terminalde
+cd web && npm run dev                     # http://localhost:5173, /api isteklerini 8000'e yönlendirir
+```
+
 ### Demo
 
 [`notebooks/demo.ipynb`](notebooks/demo.ipynb): en iyi iki modelle (`e3_depth5`, `e1_si_snr`) örnekleri temizler,
@@ -83,6 +100,7 @@ docs/           Proje şartnamesi
 src/            Kaynak kod (veri, model, kayıplar, eğitim, değerlendirme)
 tests/          Birim testleri
 notebooks/      Demo notebook
+web/            React arayüzü (src/api.py ile sunulur)
 experiments/    Eğitim çıktıları, checkpoint'ler, loglar (git'e eklenmez)
 samples/        Örnek ses ve spektrogram görselleri
 ```

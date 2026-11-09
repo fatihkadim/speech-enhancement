@@ -15,6 +15,9 @@ dependencies = [
     "matplotlib>=3.7",
     "tqdm>=4.65",
     "pystoi>=0.4",
+    "fastapi>=0.162.2",
+    "uvicorn[standard]>=0.54.0",
+    "python-multipart>=0.0.32",
 ]
 
 [project.optional-dependencies]
@@ -23,6 +26,7 @@ pesq = ["pesq>=0.0.4"]
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "ipykernel>=7.3.0",
     "nbconvert>=7.17.2",
     "pytest>=7.4",

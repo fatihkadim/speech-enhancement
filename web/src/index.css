@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@import "@fontsource-variable/schibsted-grotesk";
+
+/*
+ * Renkler bilgi taşır: kehribar = gürültülü girdi, deniz yeşili = temizlenmiş çıktı.
+ * Spektrogramlar ise iki taraf için aynı renk ölçeğini kullanır (adil karşılaştırma).
+ */
+@theme {
+  --font-sans: "Schibsted Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: #eceef1;
+  --color-surface: #f8f9fa;
+  --color-ink: #161a23;
+  --color-ink-soft: #2a303c;
+  --color-muted: #5b6372;
+  --color-line: #d3d8df;
+  --color-noisy: #b86e12;
+  --color-noisy-soft: #f3e3cc;
+  --color-clean: #0e7c7b;
+  --color-clean-soft: #cfe8e4;
+  --color-danger: #b42318;
+
+  --text-display: 2.75rem;
+  --text-display--line-height: 1.05;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-clean);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Spektrogram yüklenirken soldan sağa bir tarama çizgisi geçer. */
+@keyframes scan {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.scan-line {
+  animation: scan 1.4s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
