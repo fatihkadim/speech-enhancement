@@ -333,12 +333,16 @@ Her deneyde **tek bir değişken** değişir; diğer her şey baseline ile aynı
 
 Bu bölüm deneyler bittikçe `summary.json` dosyalarından doldurulur. Değerler elle uydurulmaz.
 
+`test` bölmesi (340 kayıt, tam uzunluk); U-Net satırları 3 tohumun ortalaması ± std
+(kaynak: `experiments/results/experiments_test.csv`). Diğer deneyler, görülmemiş gürültü ve SNR tabloları:
+[`results.md`](results.md); gerçek kayıtlar (E7): [`results_e7.md`](results_e7.md).
+
 | Model / Kayıp | SI-SNR (dB) | PESQ | STOI |
 |---------------|-------------|------|------|
-| Gürültülü girdi (E0) | – | – | – |
-| U-Net + L1 | – | – | – |
-| U-Net + MSE | – | – | – |
-| U-Net + SI-SNR | – | – | – |
+| Gürültülü girdi (E0) | 4,50 | 1,367 | 0,833 |
+| U-Net + L1 | 12,78 ± 0,27 | 1,970 ± 0,042 | 0,891 ± 0,004 |
+| U-Net + MSE | 12,55 ± 0,59 | 1,945 ± 0,033 | 0,895 ± 0,005 |
+| U-Net + SI-SNR | 13,49 ± 0,20 | 1,942 ± 0,007 | 0,892 ± 0,002 |
 
 ## 13. Kaynaklar
 
