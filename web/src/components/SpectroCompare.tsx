@@ -90,7 +90,7 @@ export function SpectroCompare({ result, time, onSeek, track, onTrack }: Props) 
           ref={boxRef}
           className="relative h-[clamp(220px,38vh,420px)] flex-1 cursor-crosshair overflow-hidden rounded-lg bg-ink"
           onPointerDown={(e) => {
-            if ((e.target as HTMLElement).dataset.handle) return
+            if ((e.target as HTMLElement).closest('[data-handle]')) return
             onSeek(fractionAt(e.clientX) * duration)
           }}
           onPointerMove={(e) => dragging && setSplit(fractionAt(e.clientX))}
@@ -110,10 +110,22 @@ export function SpectroCompare({ result, time, onSeek, track, onTrack }: Props) 
             style={{ left: `${(time / duration) * 100}%` }}
           />
 
-          {/* Karşılaştırma sınırı */}
-          <div className="absolute inset-y-0 -ml-px w-0.5 bg-white" style={{ left: pct }}>
+          {/* Karşılaştırma sınırı: çizginin tamamı (±8 px) sürüklenebilir; sürükleme dışındaki tıklama o ana atlar */}
+          <div
+            data-handle="1"
+            className="absolute inset-y-0 -ml-2 w-4 cursor-ew-resize touch-none"
+            style={{ left: pct }}
+            onPointerDown={(e) => {
+              e.currentTarget.setPointerCapture(e.pointerId)
+              setDragging(true)
+              setSplit(fractionAt(e.clientX))
+            }}
+            onPointerMove={(e) => dragging && setSplit(fractionAt(e.clientX))}
+            onPointerUp={() => setDragging(false)}
+            onPointerCancel={() => setDragging(false)}
+          >
+            <div className="pointer-events-none absolute inset-y-0 left-1/2 -ml-px w-0.5 bg-white" />
             <div
-              data-handle="1"
               role="slider"
               tabIndex={0}
               aria-label="Karşılaştırma sınırı"
@@ -121,20 +133,14 @@ export function SpectroCompare({ result, time, onSeek, track, onTrack }: Props) 
               aria-valuemax={100}
               aria-valuenow={Math.round(split * 100)}
               aria-valuetext={`Solda yüzde ${Math.round(split * 100)} gürültülü, sağda temizlenmiş`}
-              onPointerDown={(e) => {
-                e.currentTarget.setPointerCapture(e.pointerId)
-                setDragging(true)
-              }}
-              onPointerMove={(e) => dragging && setSplit(fractionAt(e.clientX))}
-              onPointerUp={() => setDragging(false)}
               onKeyDown={(e) => {
                 if (e.key === 'ArrowLeft') setSplit((v) => Math.max(0, v - 0.05))
                 if (e.key === 'ArrowRight') setSplit((v) => Math.min(1, v + 0.05))
               }}
               className="absolute top-1/2 left-1/2 flex h-11 w-6 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize items-center justify-center gap-[3px] rounded-md bg-white shadow-[0_2px_10px_rgba(22,26,35,0.35)]"
             >
-              <span data-handle="1" className="h-4 w-px bg-ink/40" />
-              <span data-handle="1" className="h-4 w-px bg-ink/40" />
+              <span className="h-4 w-px bg-ink/40" />
+              <span className="h-4 w-px bg-ink/40" />
             </div>
           </div>
         </div>
