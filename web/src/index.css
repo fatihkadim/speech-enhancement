@@ -55,3 +55,53 @@
 .scan-line {
   animation: scan 1.4s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
+
+/*
+ * Logo: gürültülü çubuklar düzensiz titrer, temiz çubuklar yumuşak dalgalanır,
+ * bir ışık soldan sağa geçer. --logo-speed işlem sırasında küçülür (hızlanır).
+ */
+.logo {
+  --logo-speed: 1;
+}
+.logo-busy {
+  --logo-speed: 0.45;
+}
+.logo-bar {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.logo-noisy {
+  animation: logo-jitter calc(0.9s * var(--logo-speed)) linear infinite;
+}
+.logo-noisy-1 {
+  animation-duration: calc(1.13s * var(--logo-speed));
+  animation-delay: -0.4s;
+}
+.logo-noisy-2 {
+  animation-duration: calc(0.77s * var(--logo-speed));
+  animation-delay: -0.2s;
+}
+.logo-clean {
+  animation: logo-wave calc(1.6s * var(--logo-speed)) ease-in-out infinite;
+}
+.logo-beam {
+  animation: logo-sweep calc(3.2s * var(--logo-speed)) cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
+@keyframes logo-jitter {
+  0% { transform: scaleY(1); }
+  14% { transform: scaleY(0.45); }
+  29% { transform: scaleY(1.25); }
+  43% { transform: scaleY(0.7); }
+  57% { transform: scaleY(1.1); }
+  71% { transform: scaleY(0.35); }
+  86% { transform: scaleY(0.9); }
+}
+@keyframes logo-wave {
+  0%, 100% { transform: scaleY(0.75); }
+  50% { transform: scaleY(1.35); }
+}
+@keyframes logo-sweep {
+  0% { transform: translateX(0); }
+  55%, 100% { transform: translateX(44px); }
+}

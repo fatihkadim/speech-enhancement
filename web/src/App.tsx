@@ -79,7 +79,7 @@ export default function App() {
     <div className="mx-auto flex min-h-dvh max-w-[1400px] flex-col px-5 sm:px-8">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line py-5">
         <div className="flex items-center gap-3">
-          <Logo />
+          <Logo busy={busy} />
           <div>
             <h1 className="text-lg leading-none font-semibold tracking-tight">SesTemiz</h1>
             <p className="mt-1 text-sm text-muted">U-Net ile konuşmadan gürültü giderme</p>
@@ -199,13 +199,44 @@ function Working({ label, model }: { label?: string; model?: string }) {
   )
 }
 
-function Logo() {
+/** Sol çubuklar (gürültülü) düzensiz titrer, sağdakiler (temiz) yumuşak bir dalga çizer;
+ * soldan sağa geçen ışık "temizleme"yi anlatır. İşlem sürerken animasyon hızlanır. */
+const NOISY_BARS = [
+  { x: 7, h: 6 },
+  { x: 11, h: 14 },
+  { x: 15, h: 8 },
+]
+const CLEAN_BARS = [
+  { x: 19, h: 4 },
+  { x: 23, h: 10 },
+  { x: 27, h: 2 },
+]
+
+function Logo({ busy = false }: { busy?: boolean }) {
   return (
-    <svg viewBox="0 0 32 32" className="size-9" aria-hidden>
+    <svg viewBox="0 0 32 32" className={`logo size-9 ${busy ? 'logo-busy' : ''}`} aria-hidden>
+      <defs>
+        <clipPath id="logo-clip">
+          <rect width="32" height="32" rx="7" />
+        </clipPath>
+        <linearGradient id="logo-beam" x1="0" x2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity="0" />
+          <stop offset="0.5" stopColor="#fff" stopOpacity="0.22" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+      </defs>
       <rect width="32" height="32" rx="7" fill="#161A23" />
-      <g strokeLinecap="round" strokeWidth="2.4">
-        <path d="M7 13v6M11 9v14M15 12v8" stroke="#D08A2E" />
-        <path d="M19 14v4M23 11v10M27 15v2" stroke="#3FB6A8" />
+      <g clipPath="url(#logo-clip)">
+        {NOISY_BARS.map((b, i) => (
+          <rect key={b.x} className={`logo-bar logo-noisy logo-noisy-${i}`} x={b.x - 1.2} y={16 - b.h / 2}
+                width="2.4" height={b.h} rx="1.2" fill="#D08A2E" />
+        ))}
+        {CLEAN_BARS.map((b, i) => (
+          <rect key={b.x} className="logo-bar logo-clean" style={{ animationDelay: `${i * -0.35}s` }}
+                x={b.x - 1.2} y={16 - Math.max(b.h, 2.4) / 2} width="2.4" height={Math.max(b.h, 2.4)} rx="1.2"
+                fill="#3FB6A8" />
+        ))}
+        <rect className="logo-beam" x="-12" width="12" height="32" fill="url(#logo-beam)" />
       </g>
     </svg>
   )
