@@ -119,7 +119,7 @@ samples/        Örnek ses ve spektrogram görselleri
 - [x] **M2** — Veri hattı ve sızıntı kontrolü
 - [x] **M3** — U-Net ve kayıp fonksiyonları
 - [x] **M4** — Baseline eğitim ve değerlendirme
-- [~] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
+- [x] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
 - [x] **M6** — Demo notebook ve sonuç tabloları
 
 ## Sonuçlar
@@ -143,6 +143,14 @@ baseline'a fark, köşeli parantez içinde %95 güven aralığı. Tüm tablolar 
 Notlar: 21 eğitimin 17'si 50 epoch sınırına ulaştı (doğrulama kaybı hâlâ hafifçe iyileşiyordu); tüm deneyler
 aynı sınırla eğitildiği için karşılaştırma adildir. Faz gürültülü sinyalden alınır (bkz. şartname). İlk pilot deney
 (450 örnek, tek tohum) `experiments/pilot_450/` altında saklanmıştır.
+
+### E7: gerçek kayıtlar
+
+Telefonla kaydedilmiş 19 gerçek kayıtta temiz referans olmadığından, gürültü tabanının ve konuşma seviyesinin ne
+kadar düştüğü ölçüldü. Sessiz ortamdaki 9 kayıtta gürültü ortalama 30 dB (`e3_depth5`) bastırılırken konuşma seviyesi
+1 dB'den az değişti. Müzikli ve düşük frekanslı uğultulu 10 kayıtta ise model konuşmanın alt harmoniklerini de
+kesti (konuşma seviyesinde ortalama 6 dB düşüş). Bu gürültü türleri eğitimdeki ESC-50 sınıflarının dışında kalıyor.
+Ayrıntılar, kayıt bazında tablo ve spektrogramlar: [`docs/results_e7.md`](docs/results_e7.md).
 
 ## Kaynaklar
 
