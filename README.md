@@ -59,7 +59,14 @@ uv run python -m src.infer --checkpoint experiments/baseline/seed42/best.pt --in
 # M5 deney matrisi (21 eğitim, ~9 saat) ve sonuç tabloları
 uv run python -m src.run_experiments --base configs/baseline.yaml --matrix configs/experiments.yaml
 uv run python -m src.collect_results --matrix configs/experiments.yaml --markdown docs/results.md
+
+# E7: data/raw/gercek_kayit/ altındaki gerçek kayıtlar (wav/flac/ogg) -> experiments/e7_gercek_kayit/
+uv run python -m src.real_recordings --config configs/e7_real.yaml
 ```
+
+E7'de temiz referans olmadığından SI-SNR/PESQ/STOI yerine `ozet.csv` referanssız bir enerji özeti verir:
+gürültü tabanının (en sessiz %10'luk çerçeveler) ve konuşma seviyesinin (en yüksek %5'lik çerçeveler) kaç dB
+düştüğü. Asıl değerlendirme dinleme ve spektrogramlarla yapılır.
 
 Tüm hiperparametreler `configs/` altındaki YAML dosyalarından yönetilir.
 

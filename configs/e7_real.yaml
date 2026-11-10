@@ -1,0 +1,13 @@
+# E7: gerçek (telefon) kayıtları. Temiz referans yok; değerlendirme dinleme + spektrogram +
+# referanssız enerji özeti (gürültü tabanı / konuşma seviyesi düşüşü) ile yapılır.
+input_dir: data/raw/gercek_kayit           # yalnızca bu klasörün kendisi taranır (alt klasörler değil)
+extensions: [.wav, .flac, .ogg]            # soundfile'ın okuyabildiği biçimler; mp4/m4a önce wav'a çevrilmeli
+output_dir: experiments/e7_gercek_kayit
+models:                                    # ad -> checkpoint; spektrogramdaki maske ilk modelden
+  e3_depth5: experiments/e3_depth5/seed42/best.pt
+  e1_si_snr: experiments/e1_si_snr/seed42/best.pt
+levels:
+  frame_seconds: 0.02                      # enerji çerçevesi
+  noise_percentile: 10                     # en sessiz %10'luk çerçeve = gürültü tabanı
+  speech_percentile: 95                    # en yüksek %5'lik çerçeve = konuşma seviyesi
+device: auto                               # auto | cuda | cpu
