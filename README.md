@@ -76,7 +76,7 @@ uv run jupyter nbconvert --to notebook --execute notebooks/demo.ipynb --output d
 
 ### Web arayüzü
 
-`web/` altındaki stüdyo arayüzü (TR/EN, açık/koyu tema) dosya yükleyerek, mikrofonla kaydederek ya da hazır
+`studio/` altındaki stüdyo arayüzü (TR/EN, açık/koyu tema) dosya yükleyerek, mikrofonla kaydederek ya da hazır
 örnekleri seçerek temizleme yapar. A/B karşılaştırmalı oynatıcı, kaydırmalı spektrogram, sonuç grafikleri ve
 yöntem anlatımı içerir. Ek bağımlılık gerektirmez; sunucu yalnızca standart kütüphaneyi kullanır.
 
@@ -120,7 +120,7 @@ notebooks/      Demo notebook
 experiments/    Eğitim çıktıları, checkpoint'ler, loglar (git'e eklenmez)
 models/         Release'ten indirilen checkpoint'ler (git'e eklenmez)
 samples/        Örnek ses ve spektrogram görselleri; samples/tr/ Türkçe denemeler
-web/            Stüdyo arayüzü (HTML/CSS/JS, derleme adımı yok)
+studio/         Stüdyo arayüzü (HTML/CSS/JS, derleme adımı yok)
 app/            Arayüz için yerel sunucu (yalnızca standart kütüphane)
 ```
 

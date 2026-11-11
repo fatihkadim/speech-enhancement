@@ -1,6 +1,6 @@
 """SesTemiz web arayüzü için yerel sunucu (yalnızca standart kütüphane + projenin kendi bağımlılıkları).
 
-`web/` klasörünü ve `samples/` seslerini sunar, `/api/enhance` ile modeli çalıştırır.
+`studio/` klasörünü ve `samples/` seslerini sunar, `/api/enhance` ile modeli çalıştırır.
 
 Kullanım:
     uv run python -m app.server                 # http://localhost:8080
@@ -25,7 +25,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
-WEB_DIR = ROOT / "web"
+WEB_DIR = ROOT / "studio"
 SAMPLES_DIR = ROOT / "samples"
 RELEASE_URL = "https://github.com/fatihkadim/speech-enhancement/releases/download/modeller-v1"
 REMOTE_MODELS = ("e3_depth5", "e1_si_snr")  # Release'te yayımlanan modeller
