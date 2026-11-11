@@ -1,0 +1,214 @@
+{
+ "models": [
+  "e3_depth5",
+  "e1_si_snr"
+ ],
+ "items": [
+  {
+   "id": "snr+0_hen_01_hava",
+   "snr": 0,
+   "noise": "hen",
+   "text": "Bugün hava çok güzel, parkta biraz yürüyüşe çıkalım mı?",
+   "seconds": 4.78,
+   "metrics": {
+    "noisy": {
+     "si_snr": 0.10237432271242142,
+     "pesq": null,
+     "stoi": 0.7624388013233329
+    },
+    "e3_depth5": {
+     "si_snr": 4.234525203704834,
+     "pesq": null,
+     "stoi": 0.8193388619546559
+    },
+    "e1_si_snr": {
+     "si_snr": 1.282426118850708,
+     "pesq": null,
+     "stoi": 0.7636965025712614
+    }
+   }
+  },
+  {
+   "id": "snr+5_mouse_click_02_proje",
+   "snr": 5,
+   "noise": "mouse_click",
+   "text": "Yapay sinir ağları dersi için bir gürültü giderme projesi hazırladık.",
+   "seconds": 6.0,
+   "metrics": {
+    "noisy": {
+     "si_snr": 4.996946811676025,
+     "pesq": null,
+     "stoi": 0.8881861880748071
+    },
+    "e3_depth5": {
+     "si_snr": 17.108348846435547,
+     "pesq": null,
+     "stoi": 0.9765815293186233
+    },
+    "e1_si_snr": {
+     "si_snr": 14.851730346679688,
+     "pesq": null,
+     "stoi": 0.9804924511605
+    }
+   }
+  },
+  {
+   "id": "snr-5_train_03_toplanti",
+   "snr": -5,
+   "noise": "train",
+   "text": "Toplantı saat üçte başlayacak, lütfen geç kalmayın.",
+   "seconds": 4.56,
+   "metrics": {
+    "noisy": {
+     "si_snr": -4.673600673675537,
+     "pesq": null,
+     "stoi": 0.7448097575987606
+    },
+    "e3_depth5": {
+     "si_snr": 4.134425163269043,
+     "pesq": null,
+     "stoi": 0.8248866538780367
+    },
+    "e1_si_snr": {
+     "si_snr": 3.925853967666626,
+     "pesq": null,
+     "stoi": 0.8155227995225551
+    }
+   }
+  },
+  {
+   "id": "snr+10_sheep_04_tren",
+   "snr": 10,
+   "noise": "sheep",
+   "text": "Trenin kalkmasına beş dakika kaldı, acele etmemiz gerekiyor.",
+   "seconds": 4.78,
+   "metrics": {
+    "noisy": {
+     "si_snr": 9.999263763427734,
+     "pesq": null,
+     "stoi": 0.9718481877431427
+    },
+    "e3_depth5": {
+     "si_snr": 19.866945266723633,
+     "pesq": null,
+     "stoi": 0.988527107437709
+    },
+    "e1_si_snr": {
+     "si_snr": 20.82131576538086,
+     "pesq": null,
+     "stoi": 0.9902642613753444
+    }
+   }
+  },
+  {
+   "id": "snr+5_hen_05_kayit",
+   "snr": 5,
+   "noise": "hen",
+   "text": "Bu kayıtta arka plandaki gürültüyü temizlemeyi deniyoruz.",
+   "seconds": 4.66,
+   "metrics": {
+    "noisy": {
+     "si_snr": 5.02716588973999,
+     "pesq": null,
+     "stoi": 0.7709042443220389
+    },
+    "e3_depth5": {
+     "si_snr": 9.822477340698242,
+     "pesq": null,
+     "stoi": 0.8448671367281213
+    },
+    "e1_si_snr": {
+     "si_snr": 8.074678421020508,
+     "pesq": null,
+     "stoi": 0.8117065053299293
+    }
+   }
+  },
+  {
+   "id": "snr+0_mouse_click_06_trafik",
+   "snr": 0,
+   "noise": "mouse_click",
+   "text": "İstanbul'da akşam trafiği her zamanki gibi çok yoğundu.",
+   "seconds": 4.3,
+   "metrics": {
+    "noisy": {
+     "si_snr": 0.03797490894794464,
+     "pesq": null,
+     "stoi": 0.9277599901307914
+    },
+    "e3_depth5": {
+     "si_snr": 11.38670539855957,
+     "pesq": null,
+     "stoi": 0.9842596691983574
+    },
+    "e1_si_snr": {
+     "si_snr": 12.012847900390625,
+     "pesq": null,
+     "stoi": 0.982872118661205
+    }
+   }
+  },
+  {
+   "id": "snr+15_train_07_kahve",
+   "snr": 15,
+   "noise": "train",
+   "text": "Sabahları bir fincan Türk kahvesi içmeden güne başlayamıyorum.",
+   "seconds": 4.99,
+   "metrics": {
+    "noisy": {
+     "si_snr": 15.029858589172363,
+     "pesq": null,
+     "stoi": 0.9581875044690874
+    },
+    "e3_depth5": {
+     "si_snr": 19.04822540283203,
+     "pesq": null,
+     "stoi": 0.9774291942747879
+    },
+    "e1_si_snr": {
+     "si_snr": 19.92275047302246,
+     "pesq": null,
+     "stoi": 0.9781842135401776
+    }
+   }
+  },
+  {
+   "id": "snr-5_sheep_08_kutuphane",
+   "snr": -5,
+   "noise": "sheep",
+   "text": "Kütüphanede sessizce ders çalışan öğrenciler sınava hazırlanıyordu.",
+   "seconds": 5.5,
+   "metrics": {
+    "noisy": {
+     "si_snr": -5.150384426116943,
+     "pesq": null,
+     "stoi": 0.8053413373555933
+    },
+    "e3_depth5": {
+     "si_snr": 3.1456823348999023,
+     "pesq": null,
+     "stoi": 0.9065267809314201
+    },
+    "e1_si_snr": {
+     "si_snr": 5.134570598602295,
+     "pesq": null,
+     "stoi": 0.9110816316022498
+    }
+   }
+  }
+ ],
+ "summary": {
+  "noisy": {
+   "si_snr": 3.1711998982355,
+   "stoi": 0.8536845013771944
+  },
+  "e3_depth5": {
+   "si_snr": 11.09341686964035,
+   "stoi": 0.9153021167152141
+  },
+  "e1_si_snr": {
+   "si_snr": 10.753271698951721,
+   "stoi": 0.9042275604704028
+  }
+ }
+}

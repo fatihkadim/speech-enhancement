@@ -74,17 +74,54 @@ gürültülü/temizlenmiş sesleri dinletir, önce/sonra spektrogramlarını ve 
 uv run jupyter nbconvert --to notebook --execute notebooks/demo.ipynb --output demo_run.ipynb
 ```
 
+### Web arayüzü
+
+`web/` altındaki stüdyo arayüzü (TR/EN, açık/koyu tema) dosya yükleyerek, mikrofonla kaydederek ya da hazır
+örnekleri seçerek temizleme yapar. A/B karşılaştırmalı oynatıcı, kaydırmalı spektrogram, sonuç grafikleri ve
+yöntem anlatımı içerir. Ek bağımlılık gerektirmez; sunucu yalnızca standart kütüphaneyi kullanır.
+
+```bash
+uv run python -m app.server --open      # http://localhost:8080
+uv run python -m app.server --port 9000 --device cpu
+```
+
+Model yerelde yoksa ilk kullanımda GitHub Release'ten `models/` klasörüne indirilir. Örnek kayıtlarda temiz
+referansa göre SI-SNR / STOI (PESQ kuruluysa o da) önce → sonra olarak gösterilir. Model sunucusuna
+ulaşılamazsa arayüz çevrimdışı önizleme moduna geçer ve sunucu açılınca kendiliğinden bağlanır. `tests/test_server.py`, sunucunun döndürdüğü
+sesin doğrudan çıkarımla örnek örnek aynı olduğunu (uzunluk, gecikme, genlik) doğrular.
+
+### Türkçe denemeler
+
+Model yalnızca İngilizce konuşmayla eğitildi. `samples/tr/` altındaki 8 Türkçe örnek, `data/raw/turkce/` içindeki
+temiz Türkçe cümlelerin (edge-tts ile sentezlendi: tr-TR Ahmet / Emel) veri setimizin ESC-50 gürültüleriyle
+(−5 dB ile +15 dB) karıştırılmasıyla üretildi. Ortalama SI-SNR 3,17 dB'den derin U-Net ile 11,09 dB'ye çıkıyor
+(+7,92 dB), STOI 0,854'ten 0,915'e. Sonuçlar `samples/tr/denemeler.json` dosyasında; arayüzün Örnekler
+sayfası bu dosyayı okur.
+
+Hazır örnekler repoda olduğundan yeniden üretmek gerekmez. Üretmek isterseniz: `data/raw/` git'e eklenmediği
+için kaynak ses dosyalarını (wav/mp3/flac/ogg/m4a) `data/raw/turkce/` altına kendiniz koyun (isteğe bağlı
+`metinler.txt`: `dosya|metin`). Betik `e3_depth5` ve `e1_si_snr` checkpoint'lerini `models/` ya da
+`experiments/` altında arar; yoksa önce web arayüzünü ya da demo notebook'u bir kez çalıştırarak indirin.
+
+```bash
+uvx edge-tts --voice tr-TR-EmelNeural --text "Bugün hava çok güzel." --write-media data/raw/turkce/01.mp3
+uv run python -m src.make_tr_samples
+```
+
 ## Klasör Yapısı
 
 ```
 configs/        Deney config'leri (YAML)
 data/           Ham ve işlenmiş veri (git'e eklenmez)
-docs/           Proje şartnamesi
-src/            Kaynak kod (veri, model, kayıplar, eğitim, değerlendirme)
-tests/          Birim testleri
+docs/           Proje şartnamesi ve sonuç tabloları
+src/            Kaynak kod (veri, model, kayıplar, eğitim, değerlendirme, Türkçe denemeler)
+tests/          Birim testleri (sunucu senkron testi dahil)
 notebooks/      Demo notebook
 experiments/    Eğitim çıktıları, checkpoint'ler, loglar (git'e eklenmez)
-samples/        Örnek ses ve spektrogram görselleri
+models/         Release'ten indirilen checkpoint'ler (git'e eklenmez)
+samples/        Örnek ses ve spektrogram görselleri; samples/tr/ Türkçe denemeler
+web/            Stüdyo arayüzü (HTML/CSS/JS, derleme adımı yok)
+app/            Arayüz için yerel sunucu (yalnızca standart kütüphane)
 ```
 
 ## Yol Haritası
@@ -96,6 +133,7 @@ samples/        Örnek ses ve spektrogram görselleri
 - [x] **M4** — Baseline eğitim ve değerlendirme
 - [~] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
 - [x] **M6** — Demo notebook ve sonuç tabloları
+- [x] **M7** — Web arayüzü (stüdyo, TR/EN, açık/koyu tema) ve Türkçe denemeler
 
 ## Sonuçlar
 

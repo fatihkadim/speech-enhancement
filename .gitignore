@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.log
 .ipynb_checkpoints/
 notebooks/*_run.ipynb
 
@@ -10,6 +13,7 @@ notebooks/*_run.ipynb
 .venv/
 venv/
 env/
+.env
 
 # Veri ve çıktılar (git'e eklenmez)
 data/*

@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SesTemiz · Konuşma Gürültü Giderme Stüdyosu</title>
+  <meta name="description" content="U-Net tabanlı konuşma gürültü giderme modeli için stüdyo arayüzü.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23100F0D'/%3E%3Cpath d='M5 16h3l2-7 3 14 3-10 2 5h9' fill='none' stroke='%23FF6A3D' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;400;500&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    /* İlk boyamadan önce tema ve dil: yanıp sönmeyi önler. */
+    (function () {
+      var t = null, l = null;
+      try { t = localStorage.getItem("st-theme"); l = localStorage.getItem("st-lang"); } catch (e) {}
+      if (!t) t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      if (!l) l = (navigator.language || "tr").toLowerCase().startsWith("tr") ? "tr" : "en";
+      document.documentElement.dataset.theme = t;
+      document.documentElement.lang = l;
+    })();
+  </script>
+</head>
+<body>
+  <!-- Açılış perdesi -->
+  <div class="intro" id="intro" aria-hidden="true">
+    <svg viewBox="0 0 240 60" class="intro-wave"><path id="introPath" d="M0 30 H240"/></svg>
+    <span class="intro-word">SesTemiz</span>
+  </div>
+
+  <div class="ambient" aria-hidden="true"><span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar" id="topbar">
+    <a href="#/" class="brand" data-link aria-label="SesTemiz">
+      <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true">
+        <path d="M3 16h4l2.2-8 3.4 16 3.4-12 2 6H29" />
+      </svg>
+      <span class="brand-word">Ses<em>Temiz</em></span>
+    </a>
+
+    <nav class="nav" id="nav" aria-label="primary">
+      <span class="nav-pill" id="navPill" aria-hidden="true"></span>
+      <a href="#/" data-route="" data-i18n="nav.home">Giriş</a>
+      <a href="#/studio" data-route="studio" data-i18n="nav.studio">Stüdyo</a>
+      <a href="#/samples" data-route="samples" data-i18n="nav.samples">Örnekler</a>
+      <a href="#/results" data-route="results" data-i18n="nav.results">Sonuçlar</a>
+      <a href="#/method" data-route="method" data-i18n="nav.method">Yöntem</a>
+      <a href="#/about" data-route="about" data-i18n="nav.about">Ekip</a>
+    </nav>
+
+    <div class="tools">
+      <div class="seg lang" id="langSeg" role="group" aria-label="Language">
+        <span class="seg-thumb" aria-hidden="true"></span>
+        <button type="button" data-lang="tr">TR</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <button type="button" class="icon-btn theme-btn" id="themeBtn" data-i18n-aria="nav.theme" aria-label="Temayı değiştir">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <mask id="moonMask"><rect width="24" height="24" fill="#fff"/><circle class="moon-cut" cx="24" cy="4" r="8" fill="#000"/></mask>
+          <circle class="sun-core" cx="12" cy="12" r="5" mask="url(#moonMask)"/>
+          <g class="sun-rays"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g>
+        </svg>
+      </button>
+      <button type="button" class="icon-btn menu-btn" id="menuBtn" data-i18n-aria="nav.menu" aria-label="Menü" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="view" class="view" tabindex="-1"></main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="brand-word small">Ses<em>Temiz</em></span>
+      <span class="mono dim" data-i18n="foot.made">Yapay Sinir Ağları · dönem projesi</span>
+      <button type="button" class="link-btn" id="toTop"><span data-i18n="foot.top">Başa dön</span> ↑</button>
+    </div>
+  </footer>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <!-- ============ SAYFALAR ============ -->
+
+  <template id="tpl-home">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker" data-reveal><span class="dot"></span><span data-i18n="home.kicker"></span></p>
+        <h1 class="display" data-reveal data-i18n-html="home.title"></h1>
+        <p class="lead" data-reveal data-i18n="home.lead"></p>
+        <div class="cta-row" data-reveal>
+          <a href="#/studio" class="btn btn-primary" data-magnetic><span data-i18n="home.cta"></span><i class="arr">→</i></a>
+          <a href="#/samples" class="btn btn-ghost" data-magnetic><span data-i18n="home.cta2"></span></a>
+        </div>
+      </div>
+      <figure class="hero-visual card" data-reveal>
+        <div class="hv-head mono">
+          <span class="rec"><i></i>REC 16 000 Hz</span>
+          <span data-i18n="home.drag"></span>
+        </div>
+        <canvas id="heroCanvas"></canvas>
+        <div class="hv-labels mono"><span data-i18n="home.noisy"></span><span data-i18n="home.clean"></span></div>
+        <div class="hv-foot">
+          <div class="vu" id="heroVu"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <span class="mono dim">n_fft 512 · hop 128</span>
+        </div>
+      </figure>
+    </section>
+
+    <section class="stats" data-reveal>
+      <div class="stat"><b data-count="8.64" data-dec="2" data-prefix="+" data-suffix=" dB">0</b><span data-i18n="home.stat1"></span></div>
+      <div class="stat"><b data-count="2.043" data-dec="3">0</b><span data-i18n="home.stat2"></span></div>
+      <div class="stat"><b data-count="0.897" data-dec="3">0</b><span data-i18n="home.stat3"></span></div>
+      <div class="stat"><b data-count="21" data-dec="0">0</b><span data-i18n="home.stat4"></span></div>
+    </section>
+
+    <section class="steps">
+      <article class="step card" data-reveal><span class="step-n mono">01</span><h3 data-i18n="home.s1t"></h3><p data-i18n="home.s1d"></p></article>
+      <article class="step card" data-reveal><span class="step-n mono">02</span><h3 data-i18n="home.s2t"></h3><p data-i18n="home.s2d"></p></article>
+      <article class="step card" data-reveal><span class="step-n mono">03</span><h3 data-i18n="home.s3t"></h3><p data-i18n="home.s3d"></p></article>
+    </section>
+
+    <section class="marquee-wrap" data-reveal>
+      <p class="mono dim center" data-i18n="home.marquee"></p>
+      <div class="marquee"><div class="marquee-track" id="marquee"></div></div>
+    </section>
+  </template>
+
+  <template id="tpl-studio">
+    <header class="page-head">
+      <p class="kicker" data-reveal><span class="dot"></span><span data-i18n="studio.kicker"></span></p>
+      <h1 class="display md" data-reveal data-i18n-html="studio.title"></h1>
+    </header>
+
+    <div class="offline-banner card" id="offlineBanner" hidden data-reveal>
+      <div>
+        <strong data-i18n="studio.offlineT"></strong>
+        <p data-i18n="studio.offlineD"></p>
+      </div>
+      <button type="button" class="code-chip" data-copy="uv run python -m app.server"><code>uv run python -m app.server</code><span>⧉</span></button>
+    </div>
+
+    <div class="studio">
+      <aside class="studio-side">
+        <section class="panel card" data-reveal>
+          <h2 class="panel-t mono"><span>A</span><span data-i18n="studio.input"></span></h2>
+
+          <div class="input-empty" id="inputEmpty">
+            <label class="drop" id="drop">
+              <input type="file" id="fileInput" accept="audio/*,.wav,.mp3,.ogg,.flac,.m4a,.webm" hidden>
+              <svg viewBox="0 0 48 48" class="drop-ic" aria-hidden="true"><path d="M24 32V10m0 0-8 8m8-8 8 8M10 30v6a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2v-6"/></svg>
+              <strong data-i18n="studio.drop"></strong>
+              <span data-i18n="studio.dropSub"></span>
+            </label>
+            <div class="or mono"><span data-i18n="studio.or"></span></div>
+            <div class="rec-row">
+              <button type="button" class="btn btn-rec" id="recBtn" data-magnetic><i class="rec-dot"></i><span data-i18n="studio.record"></span></button>
+              <div class="rec-meter" id="recMeter" hidden><canvas id="recCanvas"></canvas><span class="mono" id="recTime">00:00</span></div>
+            </div>
+            <div class="sample-pick">
+              <span class="mono dim" data-i18n="studio.sample"></span>
+              <div class="chip-group" id="trChipGroup" hidden><span class="chip-lbl mono" data-i18n="studio.groupTr"></span><div class="chips" id="trChips"></div></div>
+              <div class="chip-group"><span class="chip-lbl mono" data-i18n="studio.groupDs"></span><div class="chips" id="sampleChips"></div></div>
+            </div>
+          </div>
+
+          <div class="input-loaded" id="inputLoaded" hidden>
+            <div class="file-row">
+              <div class="file-ic" aria-hidden="true">♪</div>
+              <div class="file-meta">
+                <strong id="fileName"></strong>
+                <span class="mono dim" id="fileInfo"></span>
+              </div>
+              <button type="button" class="link-btn" id="replaceBtn" data-i18n="studio.replace"></button>
+            </div>
+            <canvas class="mini-wave" id="inputWave"></canvas>
+          </div>
+        </section>
+
+        <section class="panel card" data-reveal>
+          <h2 class="panel-t mono"><span>B</span><span data-i18n="studio.model"></span></h2>
+          <div class="models" id="models" role="radiogroup"></div>
+        </section>
+
+        <button type="button" class="btn btn-primary btn-run" id="runBtn" disabled data-magnetic data-reveal>
+          <span class="run-label" data-i18n="studio.run"></span>
+          <span class="run-progress" aria-hidden="true"></span>
+          <i class="arr">→</i>
+        </button>
+      </aside>
+
+      <section class="studio-main card" data-reveal>
+        <h2 class="panel-t mono"><span>C</span><span data-i18n="studio.output"></span></h2>
+
+        <div class="out-empty" id="outEmpty">
+          <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <strong data-i18n="studio.empty"></strong>
+          <p data-i18n="studio.emptySub"></p>
+        </div>
+
+        <div class="out" id="out" hidden>
+          <div class="player">
+            <button type="button" class="play" id="playBtn" aria-label="Play">
+              <svg viewBox="0 0 24 24"><path class="p-play" d="M8 5.5v13l10.5-6.5z"/><g class="p-pause"><rect x="6.5" y="5" width="3.6" height="14" rx="1"/><rect x="13.9" y="5" width="3.6" height="14" rx="1"/></g></svg>
+            </button>
+            <div class="ab">
+              <span class="mono dim" data-i18n="studio.ab"></span>
+              <div class="seg ab-seg" id="abSeg">
+                <span class="seg-thumb" aria-hidden="true"></span>
+                <button type="button" data-side="a"><kbd>A</kbd><span data-i18n="studio.a"></span></button>
+                <button type="button" data-side="b"><kbd>B</kbd><span data-i18n="studio.b"></span></button>
+              </div>
+            </div>
+            <span class="mono time" id="timeLbl">0:00 / 0:00</span>
+          </div>
+          <div class="wave-wrap" id="waveWrap">
+            <canvas id="waveCanvas"></canvas>
+            <span class="playhead" id="playhead"></span>
+          </div>
+          <p class="mono dim keys" data-i18n="studio.keys"></p>
+
+          <div class="spec-head">
+            <h3 class="mono" data-i18n="studio.spec"></h3>
+            <span class="mono dim" data-i18n="studio.specHint"></span>
+          </div>
+          <div class="spec" id="spec">
+            <canvas id="specA"></canvas>
+            <canvas id="specB"></canvas>
+            <span class="spec-tag l mono" data-i18n="studio.a"></span>
+            <span class="spec-tag r mono" data-i18n="studio.b"></span>
+            <div class="spec-handle" id="specHandle" role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span>⟷</span></div>
+          </div>
+
+          <div class="facts" id="facts"></div>
+          <div class="metrics" id="metrics" hidden>
+            <div class="metrics-head"><h3 class="mono" data-i18n="studio.metrics"></h3><span class="mono dim" data-i18n="studio.metricsNote"></span></div>
+            <div class="metric-grid" id="metricGrid"></div>
+          </div>
+
+          <div class="out-actions">
+            <a class="btn btn-primary" id="dlBtn" download data-magnetic><span data-i18n="studio.download"></span><i class="arr">↓</i></a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </template>
+
+  <template id="tpl-samples">
+    <header class="page-head">
+      <p class="kicker" data-reveal><span class="dot"></span><span data-i18n="samples.kicker"></span></p>
+      <h1 class="display md" data-reveal data-i18n-html="samples.title"></h1>
+      <p class="lead" data-reveal data-i18n="samples.lead"></p>
+    </header>
+    <section id="trSection" hidden>
+      <div class="sec-head" data-reveal><span class="sec-flag mono">TR</span><div><h2 data-i18n="samples.trT"></h2><p class="dim" data-i18n="samples.trD"></p></div></div>
+      <div class="sample-grid" id="trGrid"></div>
+      <section class="card chart-card trials" data-reveal>
+        <div class="chart-bar"><h2 class="mono" data-i18n="samples.trialsT"></h2></div>
+        <p class="dim small-p" data-i18n="samples.trialsD"></p>
+        <div class="trial-sum" id="trialSum"></div>
+        <div class="table-wrap"><table class="rtable" id="trialTable"></table></div>
+      </section>
+    </section>
+    <div class="sec-head" data-reveal><span class="sec-flag mono en">EN</span><div><h2 data-i18n="samples.dsT"></h2><p class="dim" data-i18n="samples.dsD"></p></div></div>
+    <div class="sample-grid" id="sampleGrid"></div>
+  </template>
+
+  <template id="tpl-results">
+    <header class="page-head">
+      <p class="kicker" data-reveal><span class="dot"></span><span data-i18n="results.kicker"></span></p>
+      <h1 class="display md" data-reveal data-i18n-html="results.title"></h1>
+      <p class="lead" data-reveal data-i18n="results.lead"></p>
+    </header>
+
+    <section class="card chart-card" data-reveal>
+      <div class="chart-bar">
+        <h2 class="mono" data-i18n="results.chartT"></h2>
+        <div class="chart-ctrl">
+          <div class="seg" id="splitSeg"><span class="seg-thumb"></span>
+            <button type="button" data-v="test" data-i18n="results.split.test"></button>
+            <button type="button" data-v="unseen" data-i18n="results.split.unseen"></button>
+          </div>
+          <div class="seg" id="metricSeg"><span class="seg-thumb"></span>
+            <button type="button" data-v="si_snr">SI-SNR</button>
+            <button type="button" data-v="pesq">PESQ</button>
+            <button type="button" data-v="stoi">STOI</button>
+          </div>
+        </div>
+      </div>
+      <div class="bars" id="bars"></div>
+    </section>
+
+    <section class="findings">
+      <article class="card finding" data-reveal><span class="mono f-n">↗</span><h3 data-i18n="results.f1t"></h3><p data-i18n="results.f1d"></p></article>
+      <article class="card finding" data-reveal><span class="mono f-n">⌁</span><h3 data-i18n="results.f2t"></h3><p data-i18n="results.f2d"></p></article>
+      <article class="card finding" data-reveal><span class="mono f-n">≡</span><h3 data-i18n="results.f3t"></h3><p data-i18n="results.f3d"></p></article>
+      <article class="card finding" data-reveal><span class="mono f-n">?</span><h3 data-i18n="results.f4t"></h3><p data-i18n="results.f4d"></p></article>
+    </section>
+
+    <section class="card chart-card" data-reveal>
+      <div class="chart-bar"><h2 class="mono" data-i18n="results.snrT"></h2></div>
+      <p class="dim small-p" data-i18n="results.snrD"></p>
+      <div class="line-wrap"><svg id="lineChart" class="line-chart"></svg><div class="legend" id="legend"></div></div>
+    </section>
+
+    <section class="card chart-card" data-reveal>
+      <div class="chart-bar"><h2 class="mono" data-i18n="results.tableT"></h2></div>
+      <div class="table-wrap"><table class="rtable" id="rtable"></table></div>
+    </section>
+  </template>
+
+  <template id="tpl-method">
+    <header class="page-head">
+      <p class="kicker" data-reveal><span class="dot"></span><span data-i18n="method.kicker"></span></p>
+      <h1 class="display md" data-reveal data-i18n-html="method.title"></h1>
+      <p class="lead" data-reveal data-i18n="method.lead"></p>
+    </header>
+
+    <section class="pipeline" data-reveal>
+      <div class="pipe-line" aria-hidden="true"><span class="pulse"></span></div>
+      <article class="pipe card"><span class="mono pipe-n">x = s + n</span><h3 data-i18n="method.p1t"></h3><p data-i18n="method.p1d"></p></article>
+      <article class="pipe card"><span class="mono pipe-n">02</span><h3 data-i18n="method.p2t"></h3><p data-i18n="method.p2d"></p></article>
+      <article class="pipe card hl"><span class="mono pipe-n">03</span><h3 data-i18n="method.p3t"></h3><p data-i18n="method.p3d"></p>
+        <svg viewBox="0 0 200 90" class="unet" aria-hidden="true">
+          <g class="u-blocks"><rect x="8" y="8" width="18" height="60"/><rect x="34" y="22" width="16" height="44"/><rect x="58" y="36" width="14" height="30"/><rect x="80" y="50" width="12" height="18"/>
+          <rect x="108" y="50" width="12" height="18"/><rect x="128" y="36" width="14" height="30"/><rect x="150" y="22" width="16" height="44"/><rect x="174" y="8" width="18" height="60"/></g>
+          <g class="u-skip"><path d="M26 14 H174"/><path d="M50 28 H150"/><path d="M72 42 H128"/></g>
+          <path class="u-flow" d="M17 76 L86 76 L114 76 L183 76"/>
+        </svg>
+      </article>
+      <article class="pipe card"><span class="mono pipe-n">04</span><h3 data-i18n="method.p4t"></h3><p data-i18n="method.p4d"></p></article>
+      <article class="pipe card"><span class="mono pipe-n">ŝ</span><h3 data-i18n="method.p5t"></h3><p data-i18n="method.p5d"></p></article>
+    </section>
+
+    <section class="three">
+      <article class="card info" data-reveal><h3 data-i18n="method.dataT"></h3><p data-i18n="method.dataD"></p></article>
+      <article class="card info" data-reveal><h3 data-i18n="method.lossT"></h3><p data-i18n="method.lossD"></p></article>
+      <article class="card info" data-reveal><h3 data-i18n="method.metricT"></h3><p data-i18n="method.metricD"></p></article>
+    </section>
+
+    <section class="questions" data-reveal>
+      <h2 class="mono" data-i18n="method.qT"></h2>
+      <ol>
+        <li><span class="mono">Q1</span><p data-i18n="method.q1"></p><a href="#/results" class="q-link">E1 →</a></li>
+        <li><span class="mono">Q2</span><p data-i18n="method.q2"></p><a href="#/results" class="q-link">E2 · E3 →</a></li>
+        <li><span class="mono">Q3</span><p data-i18n="method.q3"></p><a href="#/results" class="q-link">E6 →</a></li>
+        <li><span class="mono">Q4</span><p data-i18n="method.q4"></p><a href="#/results" class="q-link">E5 →</a></li>
+      </ol>
+    </section>
+  </template>
+
+  <template id="tpl-about">
+    <header class="page-head">
+      <p class="kicker" data-reveal><span class="dot"></span><span data-i18n="about.kicker"></span></p>
+      <h1 class="display md" data-reveal data-i18n-html="about.title"></h1>
+      <p class="lead" data-reveal data-i18n="about.lead"></p>
+    </header>
+    <section class="team">
+      <article class="card person" data-reveal><span class="avatar">FK</span><h3>Fatih Kadim</h3></article>
+      <article class="card person" data-reveal><span class="avatar">MG</span><h3>Mehmet Göktuğ Elbir</h3></article>
+      <article class="card person" data-reveal><span class="avatar">MB</span><h3>Mehmet Burak Albayrak</h3></article>
+    </section>
+    <section class="two">
+      <article class="card info" data-reveal>
+        <h3 class="mono" data-i18n="about.refs"></h3>
+        <ul class="refs">
+          <li>Ronneberger et al., <em>U-Net</em>, 2015</li>
+          <li>Panayotov et al., <em>LibriSpeech</em>, 2015</li>
+          <li>Piczak, <em>ESC-50</em>, 2015</li>
+          <li>Le Roux et al., <em>SDR: Half-baked or Well Done?</em>, 2019</li>
+          <li>Rix et al., <em>PESQ</em>, 2001 · Taal et al., <em>STOI</em>, 2011</li>
+        </ul>
+      </article>
+      <article class="card info" data-reveal>
+        <h3 class="mono" data-i18n="about.stack"></h3>
+        <div class="tags"><span>PyTorch</span><span>torchaudio</span><span>pystoi</span><span>PESQ</span><span>uv</span><span>Web Audio API</span></div>
+        <h3 class="mono mt" data-i18n="about.run"></h3>
+        <button type="button" class="code-chip" data-copy="uv run python -m app.server"><code>uv run python -m app.server</code><span>⧉</span></button>
+      </article>
+    </section>
+  </template>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/dsp.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
