@@ -52,7 +52,7 @@ def test_run_one_resumes(tmp_path: Path) -> None:
     out = tmp_path / cfg["output_dir"]
 
     out.mkdir(parents=True)
-    (out / "log.csv").write_text("yarım")  # yarıda kalmış çalıştırma taklidi
+    (out / "log.csv").write_text("yarım", encoding="utf-8")  # yarıda kalmış çalıştırma taklidi
     run_one(cfg, tmp_path)
     assert (out / TRAIN_DONE).exists()
     assert all((out / f"eval_{s}" / "summary.json").exists() for s in ("test", "test_unseen_noise"))

@@ -1,0 +1,107 @@
+@import "tailwindcss";
+@import "@fontsource-variable/schibsted-grotesk";
+
+/*
+ * Renkler bilgi taşır: kehribar = gürültülü girdi, deniz yeşili = temizlenmiş çıktı.
+ * Spektrogramlar ise iki taraf için aynı renk ölçeğini kullanır (adil karşılaştırma).
+ */
+@theme {
+  --font-sans: "Schibsted Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: #eceef1;
+  --color-surface: #f8f9fa;
+  --color-ink: #161a23;
+  --color-ink-soft: #2a303c;
+  --color-muted: #5b6372;
+  --color-line: #d3d8df;
+  --color-noisy: #b86e12;
+  --color-noisy-soft: #f3e3cc;
+  --color-clean: #0e7c7b;
+  --color-clean-soft: #cfe8e4;
+  --color-danger: #b42318;
+
+  --text-display: 2.75rem;
+  --text-display--line-height: 1.05;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-clean);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Spektrogram yüklenirken soldan sağa bir tarama çizgisi geçer. */
+@keyframes scan {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.scan-line {
+  animation: scan 1.4s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+/*
+ * Logo: gürültülü çubuklar düzensiz titrer, temiz çubuklar yumuşak dalgalanır,
+ * bir ışık soldan sağa geçer. --logo-speed işlem sırasında küçülür (hızlanır).
+ */
+.logo {
+  --logo-speed: 1;
+}
+.logo-busy {
+  --logo-speed: 0.45;
+}
+.logo-bar {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.logo-noisy {
+  animation: logo-jitter calc(0.9s * var(--logo-speed)) linear infinite;
+}
+.logo-noisy-1 {
+  animation-duration: calc(1.13s * var(--logo-speed));
+  animation-delay: -0.4s;
+}
+.logo-noisy-2 {
+  animation-duration: calc(0.77s * var(--logo-speed));
+  animation-delay: -0.2s;
+}
+.logo-clean {
+  animation: logo-wave calc(1.6s * var(--logo-speed)) ease-in-out infinite;
+}
+.logo-beam {
+  animation: logo-sweep calc(3.2s * var(--logo-speed)) cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
+@keyframes logo-jitter {
+  0% { transform: scaleY(1); }
+  14% { transform: scaleY(0.45); }
+  29% { transform: scaleY(1.25); }
+  43% { transform: scaleY(0.7); }
+  57% { transform: scaleY(1.1); }
+  71% { transform: scaleY(0.35); }
+  86% { transform: scaleY(0.9); }
+}
+@keyframes logo-wave {
+  0%, 100% { transform: scaleY(0.75); }
+  50% { transform: scaleY(1.35); }
+}
+@keyframes logo-sweep {
+  0% { transform: translateX(0); }
+  55%, 100% { transform: translateX(44px); }
+}

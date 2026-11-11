@@ -59,9 +59,33 @@ uv run python -m src.infer --checkpoint experiments/baseline/seed42/best.pt --in
 # M5 deney matrisi (21 eğitim, ~9 saat) ve sonuç tabloları
 uv run python -m src.run_experiments --base configs/baseline.yaml --matrix configs/experiments.yaml
 uv run python -m src.collect_results --matrix configs/experiments.yaml --markdown docs/results.md
+
+# E7: data/raw/gercek_kayit/ altındaki gerçek kayıtlar (wav/flac/ogg) -> experiments/e7_gercek_kayit/
+uv run python -m src.real_recordings --config configs/e7_real.yaml
 ```
 
+E7'de temiz referans olmadığından SI-SNR/PESQ/STOI yerine `ozet.csv` referanssız bir enerji özeti verir:
+gürültü tabanının (en sessiz %10'luk çerçeveler) ve konuşma seviyesinin (en yüksek %5'lik çerçeveler) kaç dB
+düştüğü. Asıl değerlendirme dinleme ve spektrogramlarla yapılır.
+
 Tüm hiperparametreler `configs/` altındaki YAML dosyalarından yönetilir.
+
+### Web arayüzü
+
+![SesTemiz web arayüzü: -5 dB tavuk sesi örneğinde gürültülü ve temizlenmiş spektrogram karşılaştırması](docs/web_arayuz.png)
+
+React arayüzü (`web/`) bir ses dosyası yükleyip, mikrofonla kaydedip ya da `samples/` örneklerini seçip modeli
+çalıştırır. Gürültülü ve temizlenmiş spektrogramları sürüklenebilir bir sınırla karşılaştırır, iki sürümü kesintisiz
+geçişle dinletir, modelin maskesini ve (örneklerde) SI-SNR / PESQ / STOI değişimini gösterir. Modeller yoksa
+Release'ten `models/` altına indirilir. Bir örneğe doğrudan bağlantı verilebilir: `http://localhost:8000/?ornek=snr-5_hen`. Node.js 20+ gerekir.
+
+```bash
+cd web && npm install && npm run build && cd ..
+uv run python -m src.api                 # http://localhost:8000 (API + derlenmiş arayüz)
+
+# Arayüz üzerinde çalışırken: API'yi yukarıdaki gibi açın, ayrı terminalde
+cd web && npm run dev                     # http://localhost:5173, /api isteklerini 8000'e yönlendirir
+```
 
 ### Demo
 
@@ -74,7 +98,7 @@ gürültülü/temizlenmiş sesleri dinletir, önce/sonra spektrogramlarını ve 
 uv run jupyter nbconvert --to notebook --execute notebooks/demo.ipynb --output demo_run.ipynb
 ```
 
-### Web arayüzü
+### Stüdyo arayüzü (derlemesiz alternatif)
 
 `studio/` altındaki stüdyo arayüzü (TR/EN, açık/koyu tema) dosya yükleyerek, mikrofonla kaydederek ya da hazır
 örnekleri seçerek temizleme yapar. A/B karşılaştırmalı oynatıcı, kaydırmalı spektrogram, sonuç grafikleri ve
@@ -87,8 +111,9 @@ uv run python -m app.server --port 9000 --device cpu
 
 Model yerelde yoksa ilk kullanımda GitHub Release'ten `models/` klasörüne indirilir. Örnek kayıtlarda temiz
 referansa göre SI-SNR / STOI (PESQ kuruluysa o da) önce → sonra olarak gösterilir. Model sunucusuna
-ulaşılamazsa arayüz çevrimdışı önizleme moduna geçer ve sunucu açılınca kendiliğinden bağlanır. `tests/test_server.py`, sunucunun döndürdüğü
-sesin doğrudan çıkarımla örnek örnek aynı olduğunu (uzunluk, gecikme, genlik) doğrular.
+ulaşılamazsa arayüz çevrimdışı önizleme moduna geçer ve sunucu açılınca kendiliğinden bağlanır.
+`tests/test_server.py`, sunucunun döndürdüğü sesin doğrudan çıkarımla örnek örnek aynı olduğunu (uzunluk,
+gecikme, genlik) doğrular.
 
 ### Türkçe denemeler
 
@@ -101,7 +126,7 @@ sayfası bu dosyayı okur.
 Hazır örnekler repoda olduğundan yeniden üretmek gerekmez. Üretmek isterseniz: `data/raw/` git'e eklenmediği
 için kaynak ses dosyalarını (wav/mp3/flac/ogg/m4a) `data/raw/turkce/` altına kendiniz koyun (isteğe bağlı
 `metinler.txt`: `dosya|metin`). Betik `e3_depth5` ve `e1_si_snr` checkpoint'lerini `models/` ya da
-`experiments/` altında arar; yoksa önce web arayüzünü ya da demo notebook'u bir kez çalıştırarak indirin.
+`experiments/` altında arar; yoksa önce arayüzlerden birini ya da demo notebook'u bir kez çalıştırarak indirin.
 
 ```bash
 uvx edge-tts --voice tr-TR-EmelNeural --text "Bugün hava çok güzel." --write-media data/raw/turkce/01.mp3
@@ -117,6 +142,7 @@ docs/           Proje şartnamesi ve sonuç tabloları
 src/            Kaynak kod (veri, model, kayıplar, eğitim, değerlendirme, Türkçe denemeler)
 tests/          Birim testleri (sunucu senkron testi dahil)
 notebooks/      Demo notebook
+web/            React arayüzü (src/api.py ile sunulur)
 experiments/    Eğitim çıktıları, checkpoint'ler, loglar (git'e eklenmez)
 models/         Release'ten indirilen checkpoint'ler (git'e eklenmez)
 samples/        Örnek ses ve spektrogram görselleri; samples/tr/ Türkçe denemeler
@@ -131,9 +157,9 @@ app/            Arayüz için yerel sunucu (yalnızca standart kütüphane)
 - [x] **M2** — Veri hattı ve sızıntı kontrolü
 - [x] **M3** — U-Net ve kayıp fonksiyonları
 - [x] **M4** — Baseline eğitim ve değerlendirme
-- [~] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
+- [x] **M5** — Deneyler (kayıp, skip, derinlik, çıkış türü, SNR, görülmemiş gürültü, gerçek kayıt)
 - [x] **M6** — Demo notebook ve sonuç tabloları
-- [x] **M7** — Web arayüzü (stüdyo, TR/EN, açık/koyu tema) ve Türkçe denemeler
+- [x] **M7** — Web arayüzleri (React + FastAPI; derlemesiz stüdyo, TR/EN, açık/koyu tema) ve Türkçe denemeler
 
 ## Sonuçlar
 
@@ -156,6 +182,14 @@ baseline'a fark, köşeli parantez içinde %95 güven aralığı. Tüm tablolar 
 Notlar: 21 eğitimin 17'si 50 epoch sınırına ulaştı (doğrulama kaybı hâlâ hafifçe iyileşiyordu); tüm deneyler
 aynı sınırla eğitildiği için karşılaştırma adildir. Faz gürültülü sinyalden alınır (bkz. şartname). İlk pilot deney
 (450 örnek, tek tohum) `experiments/pilot_450/` altında saklanmıştır.
+
+### E7: gerçek kayıtlar
+
+Telefonla kaydedilmiş 19 gerçek kayıtta temiz referans olmadığından, gürültü tabanının ve konuşma seviyesinin ne
+kadar düştüğü ölçüldü. Sessiz ortamdaki 9 kayıtta gürültü ortalama 30 dB (`e3_depth5`) bastırılırken konuşma seviyesi
+1 dB'den az değişti. Müzikli ve düşük frekanslı uğultulu 10 kayıtta ise model konuşmanın alt harmoniklerini de
+kesti (konuşma seviyesinde ortalama 6 dB düşüş). Bu gürültü türleri eğitimdeki ESC-50 sınıflarının dışında kalıyor.
+Ayrıntılar, kayıt bazında tablo ve spektrogramlar: [`docs/results_e7.md`](docs/results_e7.md).
 
 ## Kaynaklar
 
