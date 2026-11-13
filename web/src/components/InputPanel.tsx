@@ -1,5 +1,5 @@
-import { Mic, Square, Upload } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { Mic, Smartphone, Square, Upload } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Sample } from '../lib/api'
 import { formatTime } from '../lib/audio'
 
@@ -12,11 +12,29 @@ type Props = {
 }
 
 export function InputPanel({ samples, activeSampleId, busy, onFile, onSample }: Props) {
+  const testSamples = samples.filter((s) => s.kind === 'test')
+  const realSamples = samples.filter((s) => s.kind === 'real')
+  const item = (s: Sample, icon: ReactNode, right: string) => (
+    <li key={s.id}>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => onSample(s)}
+        aria-current={activeSampleId === s.id}
+        className="group flex w-full items-center gap-3 py-2.5 text-left transition-colors hover:bg-surface disabled:cursor-wait aria-[current=true]:bg-surface"
+      >
+        {icon}
+        <span className="flex-1">{s.label.charAt(0).toLocaleUpperCase('tr') + s.label.slice(1)}</span>
+        <span className="text-sm text-muted tabular-nums">{right}</span>
+      </button>
+    </li>
+  )
+
   return (
     <div className="flex flex-col gap-8">
       <DropZone busy={busy} onFile={onFile} />
       <Recorder busy={busy} onFile={onFile} />
-      {samples.length > 0 && (
+      {testSamples.length > 0 && (
         <section aria-labelledby="samples-title">
           <h2 id="samples-title" className="text-base font-semibold">
             Örneklerle dene
@@ -25,23 +43,27 @@ export function InputPanel({ samples, activeSampleId, busy, onFile, onSample }: 
             Test bölmesinden kayıtlar. Temiz hali bilindiği için ölçümler de gösterilir.
           </p>
           <ul className="mt-3 divide-y divide-line border-y border-line">
-            {samples.map((s) => (
-              <li key={s.id}>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => onSample(s)}
-                  aria-current={activeSampleId === s.id}
-                  className="group flex w-full items-center gap-3 py-2.5 text-left transition-colors hover:bg-surface disabled:cursor-wait aria-[current=true]:bg-surface"
-                >
-                  <SnrMeter snr={s.snr} />
-                  <span className="flex-1">{s.label.charAt(0).toLocaleUpperCase('tr') + s.label.slice(1)}</span>
-                  <span className="text-sm text-muted">{s.snr > 0 ? `+${s.snr}` : s.snr} dB</span>
-                </button>
-              </li>
-            ))}
+            {testSamples.map((s) => {
+              const snr = s.snr ?? 0
+              return item(s, <SnrMeter snr={snr} />, `${snr > 0 ? `+${snr}` : snr} dB`)
+            })}
           </ul>
           <p className="mt-2 text-xs text-muted">Çubuklar sinyal-gürültü oranını gösterir; az çubuk, daha çok gürültü.</p>
+        </section>
+      )}
+      {realSamples.length > 0 && (
+        <section aria-labelledby="real-title">
+          <h2 id="real-title" className="text-base font-semibold">
+            Gerçek kayıtlar
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            Telefonla alınmış sesli mesajlar. Temiz hali olmadığı için ölçüm yok; kulakla ve spektrogramla değerlendir.
+          </p>
+          <ul className="mt-3 divide-y divide-line border-y border-line">
+            {realSamples.map((s) =>
+              item(s, <Smartphone className="ml-1 size-4 text-ink-soft" aria-hidden />, formatTime(s.duration)),
+            )}
+          </ul>
         </section>
       )}
     </div>

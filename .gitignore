@@ -15,7 +15,7 @@ venv/
 env/
 .env
 
-# Veri ve çıktılar (git'e eklenmez)
+# Veri ve çıktılar 
 data/*
 !data/raw/
 !data/processed/
@@ -43,3 +43,6 @@ CLAUDE.md
 .idea/
 .DS_Store
 Thumbs.db
+
+# Yerel çalışma notu, paylaşılmaz
+docs/veri_ve_olcekleme_raporu.md

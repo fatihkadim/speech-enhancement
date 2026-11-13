@@ -9,6 +9,7 @@ Geliştirme sırasında arayüz `npm run dev` ile 5173'te çalışır ve /api is
 """
 import argparse
 import io
+import json
 import logging
 import math
 import threading
@@ -34,6 +35,8 @@ from src.utils.plotting import DYNAMIC_RANGE_DB, spectrogram_db
 log = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parent.parent
+REAL_DIR = ROOT / "samples" / "gercek"   # gerçek telefon kayıtları (E7), temiz referansı yok
+REAL_PREFIX = "gercek_"
 RELEASE_URL = "https://github.com/fatihkadim/speech-enhancement/releases/download/modeller-v1"
 SEED = 42
 MAX_SECONDS = 120          # daha uzun kayıtlar reddedilir (GPU belleği)
@@ -155,14 +158,46 @@ def _clean_nan(d: dict) -> dict:
 
 
 def _samples() -> list[dict]:
+    """Test bölmesi örnekleri (SNR'a göre) ve ardından gerçek kayıtlar (temiz hali yok)."""
     items = []
     for noisy in (ROOT / "samples").glob("snr*_noisy.wav"):
         stem = noisy.name.removesuffix("_noisy.wav")      # ör. snr+10_mouse_click
         snr, noise = stem.split("_", 1)
-        items.append({"id": stem, "snr": int(snr[3:]), "noise": noise,
+        items.append({"id": stem, "kind": "test", "snr": int(snr[3:]), "noise": noise,
                       "label": NOISE_NAMES.get(noise, noise.replace("_", " ")),
+                      "duration": round(sf.info(noisy).duration, 2),
                       "has_clean": noisy.with_name(f"{stem}_clean.wav").exists()})
-    return sorted(items, key=lambda s: s["snr"])
+    items.sort(key=lambda s: s["snr"])
+    return items + _real_samples()
+
+
+def _real_samples() -> list[dict]:
+    """`samples/gercek/kayitlar.json`'da listelenen telefon kayıtları (E7)."""
+    meta_path = REAL_DIR / "kayitlar.json"
+    if not meta_path.exists():
+        return []
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    items = []
+    for stem, m in sorted(meta.items()):
+        noisy = REAL_DIR / f"{stem}_noisy.wav"
+        if not noisy.exists():
+            log.warning("Gerçek kayıt eksik: %s", noisy)
+            continue
+        items.append({"id": f"{REAL_PREFIX}{stem}", "kind": "real", "snr": None, "noise": None,
+                      "label": m["label"], "duration": round(sf.info(noisy).duration, 2), "has_clean": False})
+    return items
+
+
+def _sample_path(sample: dict, kind: str) -> Path:
+    """Örneğin gürültülü/temiz dosyasının yolu."""
+    if sample["kind"] == "real":
+        return REAL_DIR / f"{sample['id'].removeprefix(REAL_PREFIX)}_{kind}.wav"
+    return ROOT / "samples" / f"{sample['id']}_{kind}.wav"
+
+
+def _sample_title(sample: dict) -> str:
+    label = sample["label"][0].upper() + sample["label"][1:]
+    return f"{label}, gerçek kayıt" if sample["kind"] == "real" else f"{label}, {sample['snr']:+d} dB"
 
 
 def _wav_bytes(wave: torch.Tensor, sr: int) -> bytes:
@@ -194,9 +229,10 @@ def create_app(device: str) -> FastAPI:
 
     @app.get("/api/samples/{sample_id}/{kind}.wav")
     def sample_audio(sample_id: str, kind: str) -> FileResponse:
-        if kind not in ("noisy", "clean") or sample_id not in {s["id"] for s in _samples()}:
+        sample = next((s for s in _samples() if s["id"] == sample_id), None)
+        if kind not in ("noisy", "clean") or sample is None or (kind == "clean" and not sample["has_clean"]):
             raise HTTPException(404, "Örnek bulunamadı.")
-        return FileResponse(ROOT / "samples" / f"{sample_id}_{kind}.wav", media_type="audio/wav")
+        return FileResponse(_sample_path(sample, kind), media_type="audio/wav")
 
     @app.post("/api/enhance/sample")
     def enhance_sample(sample_id: str = Form(...), model: str = Form(...)) -> dict:
@@ -204,9 +240,9 @@ def create_app(device: str) -> FastAPI:
         if sample is None:
             raise HTTPException(404, "Örnek bulunamadı.")
         sr = engine.model(model)[1]["data"]["sr"]
-        noisy = load_audio(ROOT / "samples" / f"{sample_id}_noisy.wav", sr)
-        clean = load_audio(ROOT / "samples" / f"{sample_id}_clean.wav", sr) if sample["has_clean"] else None
-        return engine.run(noisy, model, clean, f"{sample['label'].capitalize()}, {sample['snr']:+d} dB")
+        noisy = load_audio(_sample_path(sample, "noisy"), sr)
+        clean = load_audio(_sample_path(sample, "clean"), sr) if sample["has_clean"] else None
+        return engine.run(noisy, model, clean, _sample_title(sample))
 
     @app.post("/api/enhance")
     async def enhance_upload(file: UploadFile = File(...), model: str = Form(...),

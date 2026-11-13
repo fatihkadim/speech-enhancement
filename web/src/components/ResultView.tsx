@@ -138,7 +138,7 @@ function Metrics({ result }: { result: EnhanceResult }) {
           <Row label="İşlem süresi" value={`${Math.round(result.processing_ms)} ms`} />
         </dl>
         <p className="mt-2 text-xs text-muted">
-          Bu kaydın temiz hali bilinmediği için SI-SNR, PESQ ve STOI hesaplanamaz. Ölçümleri görmek için bir örnek seç.
+          Bu kaydın temiz hali bilinmediği için SI-SNR, PESQ ve STOI hesaplanamaz. Ölçümleri görmek için test bölmesinden bir örnek seç.
         </p>
       </section>
     )

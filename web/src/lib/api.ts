@@ -2,9 +2,12 @@ export type ModelInfo = { id: string; label: string; detail: string }
 
 export type Sample = {
   id: string
-  snr: number
-  noise: string
+  /** test: sentetik karışım (temiz hali var), real: telefonla alınmış gerçek kayıt */
+  kind: 'test' | 'real'
+  snr: number | null
+  noise: string | null
   label: string
+  duration: number
   has_clean: boolean
 }
 

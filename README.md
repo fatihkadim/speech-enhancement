@@ -78,6 +78,8 @@ React arayüzü (`web/`) bir ses dosyası yükleyip, mikrofonla kaydedip ya da `
 çalıştırır. Gürültülü ve temizlenmiş spektrogramları sürüklenebilir bir sınırla karşılaştırır, iki sürümü kesintisiz
 geçişle dinletir, modelin maskesini ve (örneklerde) SI-SNR / PESQ / STOI değişimini gösterir. Modeller yoksa
 Release'ten `models/` altına indirilir. Bir örneğe doğrudan bağlantı verilebilir: `http://localhost:8000/?ornek=snr-5_hen`. Node.js 20+ gerekir.
+"Gerçek kayıtlar" listesi `samples/gercek/` altındaki telefon kayıtlarını (E7'den kayıt 04, 05, 17, 22) gösterir; liste
+`samples/gercek/kayitlar.json` dosyasından okunur, temiz hali olmadığı için bu kayıtlarda ölçüm gösterilmez.
 
 ```bash
 cd web && npm install && npm run build && cd ..
